@@ -174,6 +174,6 @@ variable web_acl_id {
 //jj
 
 variable tags {
-  type    = map(string)
+  type = map(string)
   default = {}
 }
