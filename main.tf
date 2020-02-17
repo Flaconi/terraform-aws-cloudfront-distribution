@@ -141,6 +141,10 @@ resource "aws_cloudfront_distribution" "this" {
 
   tags = var.tags
 
+  lifecycle {
+    ignore_changes = [default_cache_behavior[0].lambda_function_association]
+  }
+
   dynamic "restrictions" {
     for_each = var.geo_restriction[*]
     content {
