@@ -131,12 +131,12 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   dynamic "logging_config" {
-   for_each = var.logging_config[*]
-   content {
-     bucket          = lookup(logging_config.value,"bucket",null)
-     include_cookies = lookup(logging_config.value,"include_cookies",null)
-     prefix          = lookup(logging_config.value,"prefix",null)
-   }
+    for_each = var.logging_config[*]
+    content {
+      bucket          = lookup(logging_config.value,"bucket",null)
+      include_cookies = lookup(logging_config.value,"include_cookies",null)
+      prefix          = lookup(logging_config.value,"prefix",null)
+    }
   }
 
   tags = var.tags
