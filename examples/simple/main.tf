@@ -1,14 +1,61 @@
-provider aws {
-  region = "us-east-1"
+module "logBucket" {
+  source = "github.com/terraform-aws-modules/terraform-aws-s3-bucket.git?ref=v2.9.0"
+
+  bucket_prefix = "flaconi-cft-log-"
+}
+
+module "contentBucket" {
+  source = "github.com/terraform-aws-modules/terraform-aws-s3-bucket.git?ref=v2.9.0"
+
+  bucket_prefix = "flaconi-cft-content-"
+}
+
+resource "aws_cloudfront_origin_access_identity" "this" {
+  comment = "Example identity"
+}
+
+resource "aws_iam_role" "lambda_role" {
+  name = "ci-example-lambda-role"
+
+  assume_role_policy = <<EOF
+{
+   "Version": "2012-10-17",
+   "Statement": [
+      {
+         "Effect": "Allow",
+         "Principal": {
+            "Service": [
+               "lambda.amazonaws.com",
+               "edgelambda.amazonaws.com"
+            ]
+         },
+         "Action": "sts:AssumeRole"
+      }
+   ]
+}
+EOF
+}
+
+resource "aws_lambda_function" "this" {
+  provider      = aws.lambda
+  function_name = "ci-example-lambda"
+  role          = aws_iam_role.lambda_role.arn
+
+  runtime  = "python3.7"
+  filename = "lambda.zip"
+  handler  = "lambda_handler"
+  publish  = true
+
+  source_code_hash = filebase64sha256("lambda.zip")
 }
 
 module cloudfront {
-  source                   = "../"
+  source                   = "../.."
   retain_on_delete         = false
   comment                  = "AWS Cloudfront Module"
   enabled                  = true
   minimum_protocol_version = "TLSv1.1_2016"
-  region                   = "us-east-1"
+  region                   = var.region
   price_class              = "PriceClass_100"
   is_ipv6_enabled          = false
   aliases                  = []
@@ -33,7 +80,7 @@ module cloudfront {
   }
 
   logging_config = {
-    bucket          = "bucket"
+    bucket          = module.logBucket.s3_bucket_bucket_domain_name
     include_cookies = false
     prefix          = "prefix"
   }
@@ -43,8 +90,8 @@ locals {
   custom_origin_config = [
     {
       domain_name              = "wikipedia.org"
-      origin_id                = "existing_origin"
-      origin_path              = "/s/red/null-service/metrics"
+      origin_id                = "wiki"
+      origin_path              = "/wiki"
       http_port                = 80
       https_port               = 443
       origin_keepalive_timeout = 5
@@ -54,7 +101,7 @@ locals {
     },
     {
       domain_name              = "google.com"
-      origin_id                = "internetServicesViaAmbassador"
+      origin_id                = "google"
       http_port                = 80
       https_port               = 443
       origin_keepalive_timeout = 5
@@ -66,13 +113,9 @@ locals {
 
   s3_origin_config = [
     {
-      domain_name            = "simple-bucket.s3.amazonaws.com"
-      origin_id              = "sitemapBucket"
-      origin_access_identity = "origin-access-identity/cloudfront/ABCDEFG1234567"
-    },
-    {
-      domain_name = "anotherbucket.s3.amazonaws.com"
-      origin_id   = "sitemapBucketi"
+      domain_name            = module.contentBucket.s3_bucket_bucket_domain_name
+      origin_id              = "contentBucket"
+      origin_access_identity = aws_cloudfront_origin_access_identity.this.cloudfront_access_identity_path
     },
   ]
 
@@ -81,7 +124,7 @@ locals {
     {
       allowed_methods         = ["DELETE", "POST", "GET", "HEAD", "PATCH", "OPTIONS", "PUT"]
       cached_methods          = ["GET", "HEAD"]
-      target_origin_id        = "existing_origin"
+      target_origin_id        = "wiki"
       compress                = false
       query_string            = true
       query_string_cache_keys = []
@@ -99,7 +142,7 @@ locals {
       path_pattern                 = "/simple_path/*"
       allowed_methods              = ["GET", "HEAD"]
       cached_methods               = ["GET", "HEAD"]
-      target_origin_id             = "existing_origin"
+      target_origin_id             = "wiki"
       compress                     = true
       query_string                 = true
       query_string_cache_keys      = []
@@ -116,7 +159,7 @@ locals {
       path_pattern                 = "/path/null"
       allowed_methods              = ["DELETE", "POST", "GET", "HEAD", "PATCH", "OPTIONS", "PUT"]
       cached_methods               = ["GET", "HEAD"]
-      target_origin_id             = "existing_origin"
+      target_origin_id             = "wiki"
       compress                     = true
       query_string                 = true
       query_string_cache_keys      = []
@@ -133,7 +176,7 @@ locals {
       path_pattern            = "/lambda/"
       allowed_methods         = ["DELETE", "POST", "GET", "HEAD", "PATCH", "OPTIONS", "PUT"]
       cached_methods          = ["GET", "HEAD"]
-      target_origin_id        = "existing_origin"
+      target_origin_id        = "contentBucket"
       compress                = true
       query_string            = true
       query_string_cache_keys = []
@@ -147,7 +190,7 @@ locals {
       lambda_function_associations = [{
         event_type   = "viewer-request"
         include_body = false
-        lambda_arn   = "arn:aws:lambda:us-east-1:200473192865:function:lambda-edge-for-incoming-requests:3"
+        lambda_arn   = aws_lambda_function.this.qualified_arn
       }]
     }
   ]
