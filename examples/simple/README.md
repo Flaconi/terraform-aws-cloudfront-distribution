@@ -29,8 +29,8 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.61.0 |
-| <a name="provider_aws.lambda"></a> [aws.lambda](#provider\_aws.lambda) | 3.61.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws.lambda"></a> [aws.lambda](#provider\_aws.lambda) | n/a |
 
 ## Modules
 

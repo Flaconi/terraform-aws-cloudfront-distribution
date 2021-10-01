@@ -19,12 +19,12 @@ variable default_root_object {
 variable custom_error_response {
   description = "Custom error response to be used in dynamic block"
   type = list(object({
-      error_caching_min_ttl = number
-      error_code            = number
-      response_code         = number
-      response_page_path    = string
+    error_caching_min_ttl = number
+    error_code            = number
+    response_code         = number
+    response_page_path    = string
   }))
-  default     = []
+  default = []
 }
 
 variable s3_origin_config {
