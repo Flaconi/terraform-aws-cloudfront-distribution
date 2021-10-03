@@ -1,6 +1,6 @@
 variable aliases {
   description = "Aliases, or CNAMES, for the distribution"
-  type        = list
+  type        = list(string)
   default     = []
 }
 
@@ -18,8 +18,13 @@ variable default_root_object {
 
 variable custom_error_response {
   description = "Custom error response to be used in dynamic block"
-  type        = any
-  default     = []
+  type = list(object({
+    error_caching_min_ttl = number
+    error_code            = number
+    response_code         = number
+    response_page_path    = string
+  }))
+  default = []
 }
 
 variable s3_origin_config {
@@ -58,14 +63,14 @@ variable logging_config {
     rules.  Your tfvars file should follow this syntax:
 
     logging_config = {
-    bucket = "<your-bucket>"
-    include_cookies = <true or false>
-    prefix = "<your-bucket-prefix>"
+      bucket = "<your-bucket>"
+      include_cookies = <true or false>
+      prefix = "<your-bucket-prefix>"
     }
 
     EOF
 
-  type    = any
+  type    = map(any)
   default = {}
 }
 
@@ -108,12 +113,6 @@ variable region {
   description = "Target AWS region"
   type        = string
   default     = "us-east-1"
-}
-
-variable restriction_location {
-  description = "The ISO 3166-1-alpha-2 codes for which you want CloudFront either to distribute your content (whitelist) or not distribute your content (blacklist)"
-  type        = list
-  default     = []
 }
 
 variable geo_restriction {
@@ -160,12 +159,8 @@ variable web_acl_id {
   default     = ""
 }
 
-// variable origin_group_member {
-//   type = any
-// }
-//jj
-
-variable tags {
-  type    = map(string)
-  default = {}
+variable "tags" {
+  description = "Map of custom tags for the provisioned resources"
+  type        = map(string)
+  default     = {}
 }
