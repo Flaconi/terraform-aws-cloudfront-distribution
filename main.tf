@@ -3,6 +3,7 @@
 #
 
 resource "aws_cloudfront_distribution" "this" {
+  count               = var.create ? 1 : 0
   aliases             = var.aliases
   comment             = var.comment
   default_root_object = var.default_root_object
