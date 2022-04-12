@@ -1,22 +1,22 @@
-variable aliases {
+variable "aliases" {
   description = "Aliases, or CNAMES, for the distribution"
   type        = list(string)
   default     = []
 }
 
-variable comment {
+variable "comment" {
   description = "Any comment about the CloudFront Distribution"
   type        = string
   default     = ""
 }
 
-variable default_root_object {
+variable "default_root_object" {
   description = "The object that you want CloudFront to return (for example, index.html) when an end user requests the root URL"
   type        = string
   default     = ""
 }
 
-variable custom_error_response {
+variable "custom_error_response" {
   description = "Custom error response to be used in dynamic block"
   type = list(object({
     error_caching_min_ttl = number
@@ -27,36 +27,36 @@ variable custom_error_response {
   default = []
 }
 
-variable s3_origin_config {
+variable "s3_origin_config" {
   description = "Configuration for the custom origin config to be used in dynamic block"
   type        = any
   default     = []
 }
 
-variable custom_origin_config {
+variable "custom_origin_config" {
   description = "Configuration for the custom origin config to be used in dynamic block"
   type        = any
   default     = []
 }
 
-variable default_cache_behavior {
+variable "default_cache_behavior" {
   description = "Default Cache Behviors to be used in dynamic block"
   type        = any
 }
 
-variable ordered_cache_behavior {
+variable "ordered_cache_behavior" {
   description = "Ordered Cache Behaviors to be used in dynamic block"
   type        = any
   default     = []
 }
 
-variable origin_groups {
+variable "origin_groups" {
   description = "Origin Group to be used in dynamic block"
   type        = any
   default     = []
 }
 
-variable logging_config {
+variable "logging_config" {
   description = <<EOF
     This is the logging configuration for the Cloudfront Distribution.  It is not required.
     If you choose to use this configuration, be sure you have the correct IAM and Bucket ACL
@@ -74,48 +74,48 @@ variable logging_config {
   default = {}
 }
 
-variable dynamic_s3_origin_config {
+variable "dynamic_s3_origin_config" {
   description = "Configuration for the s3 origin config to be used in dynamic block"
   type        = list(map(string))
   default     = []
 }
 
-variable enabled {
+variable "enabled" {
   description = "Whether the distribution is enabled to accept end user requests for content"
   type        = bool
   default     = true
 }
 
-variable is_ipv6_enabled {
+variable "is_ipv6_enabled" {
   description = "Whether the IPv6 is enabled for the distribution"
   type        = bool
   default     = true
 }
 
-variable http_version {
+variable "http_version" {
   description = "The maximum HTTP version to support on the distribution. Allowed values are http1.1 and http2"
   type        = string
   default     = "http2"
 }
 
-variable minimum_protocol_version {
+variable "minimum_protocol_version" {
   description = "The minimum version of the SSL protocol that you want CloudFront to use for HTTPS connections. One of SSLv3, TLSv1, TLSv1_2016, TLSv1.1_2016 or TLSv1.2_2018. Default: TLSv1. NOTE: If you are using a custom certificate (specified with acm_certificate_arn or iam_certificate_id), and have specified sni-only in ssl_support_method, TLSv1 or later must be specified. If you have specified vip in ssl_support_method, only SSLv3 or TLSv1 can be specified. If you have specified cloudfront_default_certificate, TLSv1 must be specified."
   type        = string
 }
 
-variable price_class {
+variable "price_class" {
   description = "The price class of the CloudFront Distribution.  Valid types are PriceClass_All, PriceClass_100, PriceClass_200"
   type        = string
   default     = "PriceClass_100"
 }
 
-variable region {
+variable "region" {
   description = "Target AWS region"
   type        = string
   default     = "us-east-1"
 }
 
-variable geo_restriction {
+variable "geo_restriction" {
   description = "The restriction type of your CloudFront distribution geolocation restriction. Options include none, whitelist, blacklist"
   type = object({
     restriction_type = string
@@ -124,36 +124,36 @@ variable geo_restriction {
   default = null
 }
 
-variable retain_on_delete {
+variable "retain_on_delete" {
   description = "Disables the distribution instead of deleting it when destroying the resource through Terraform. If this is set, the distribution needs to be deleted manually afterwards."
   type        = bool
   default     = false
 }
 
-variable iam_certificate_id {
+variable "iam_certificate_id" {
   description = "Specifies IAM certificate id for CloudFront distribution"
   type        = string
 }
 
-variable ssl_support_method {
+variable "ssl_support_method" {
   description = "Specifies how you want CloudFront to serve HTTPS requests. One of vip or sni-only."
   type        = string
   default     = "sni-only"
 }
 
-variable tag_name {
+variable "tag_name" {
   description = "The tagged name"
   type        = string
   default     = ""
 }
 
-variable wait_for_deployment {
+variable "wait_for_deployment" {
   description = "If enabled, the resource will wait for the distribution status to change from InProgress to Deployed. Setting this tofalse will skip the process."
   type        = bool
   default     = true
 }
 
-variable web_acl_id {
+variable "web_acl_id" {
   description = "The WAF Web ACL"
   type        = string
   default     = ""
@@ -163,4 +163,10 @@ variable "tags" {
   description = "Map of custom tags for the provisioned resources"
   type        = map(string)
   default     = {}
+}
+
+variable "create" {
+  description = "Set to false to prevent the module from creating any resources"
+  type        = bool
+  default     = true
 }
